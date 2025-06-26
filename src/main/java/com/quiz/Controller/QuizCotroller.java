@@ -2,6 +2,7 @@ package com.quiz.Controller;
 
 import com.quiz.model.Quiz;
 import com.quiz.service.QuizService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,8 +27,20 @@ public class QuizCotroller {
 
     //Get All Quiz
     @GetMapping()
+    @CircuitBreaker(name="questionBreaker",fallbackMethod = "questionFallback")
     public List<Quiz> Get(){
         return quizService.get();
+    }
+
+    // Correct fallback
+    public List<Quiz> questionFallback(Throwable t) {
+        System.out.println("Fallback triggered due to: " + t.getMessage());
+
+        Quiz fallbackQuiz = new Quiz();
+        fallbackQuiz.setId(0L);
+        fallbackQuiz.setTitle("Default Quiz");
+
+        return List.of(fallbackQuiz);
     }
 
 
