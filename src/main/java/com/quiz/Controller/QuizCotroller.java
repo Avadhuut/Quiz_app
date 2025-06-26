@@ -3,6 +3,7 @@ package com.quiz.Controller;
 import com.quiz.model.Quiz;
 import com.quiz.service.QuizService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,9 +26,10 @@ public class QuizCotroller {
         return quizService.add(quiz);
     }
 
+    // @CircuitBreaker(name="questionBreaker",fallbackMethod = "questionFallback")
     //Get All Quiz
     @GetMapping()
-    @CircuitBreaker(name="questionBreaker",fallbackMethod = "questionFallback")
+    @Retry(name = "quizRetry", fallbackMethod = "questionFallback")
     public List<Quiz> Get(){
         return quizService.get();
     }
